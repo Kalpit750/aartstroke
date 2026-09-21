@@ -1,0 +1,831 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Production Form - Digital</title>
+<style>
+:root{--page:#f7f7f8;--card:#fff;--line:#cfd3d8;--text:#1e2937;--muted:#697584;--blue:#2f78e7;--green:#45ad7b}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--page);font-family:Arial,Helvetica,sans-serif;color:var(--text)}
+body{min-height:100vh}
+button,input,select{font:inherit}
+.topbar{height:64px;background:#fff;border-bottom:1px solid #e2e5e8;display:flex;justify-content:flex-end;align-items:center;gap:12px;padding:0 30px}
+.btn{height:32px;padding:0 18px;border-radius:5px;border:1px solid #b8c7dc;background:white;color:#2c67b8;font-size:12px;cursor:pointer}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.wrap{max-width:950px;margin:0 auto;padding:28px 0 34px}
+.sheet{background:#fff;border:1px solid #d3d8de;border-radius:3px;box-shadow:0 2px 7px rgba(18,34,49,.08);padding:15px 16px 16px}
+.header{display:grid;grid-template-columns:150px 1fr 160px;border:1px solid #8f969f;background:#fff;min-height:92px}
+.logo-panel{border-right:1px solid #b7bdc5;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 8px 7px;text-align:center;overflow:hidden}
+.logo-swoosh{font-size:27px;line-height:16px;font-weight:700;color:#4c5157;transform:rotate(-12deg);margin-bottom:2px;letter-spacing:-5px}
+.logo-name{font-size:17px;line-height:1;font-weight:700;letter-spacing:.6px;color:#565c63}
+.logo-sub{font-size:6.5px;letter-spacing:.9px;color:#737a82;margin-top:4px;white-space:nowrap}
+.logo-foot{font-size:7px;font-weight:700;letter-spacing:.7px;color:#666d75;margin-top:8px}
+.heading{padding:13px 14px 10px;display:flex;flex-direction:column;justify-content:center}
+.heading h1{margin:0 0 10px;font-size:18px;line-height:1.05;font-weight:700;letter-spacing:.2px;color:#4c5259}
+.heading ul{margin:0;padding-left:17px}
+.heading li{font-size:9.5px;line-height:1.45;margin:2px 0;color:#434a52}
+.inline-date{width:98px;height:22px;border:1px solid #c6ccd2;border-radius:2px;padding:2px 6px;font-size:9px;margin-left:6px}
+.meta{border-left:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto 1fr}
+.meta .cell{padding:5px 7px;border-bottom:1px solid #cdd2d8;font-size:8px;min-width:0}
+.meta .cell:nth-child(odd){border-right:1px solid #cdd2d8}
+.meta .big{grid-column:1/3;display:flex;align-items:flex-start;justify-content:flex-start;flex-direction:column;border-bottom:0;padding:7px 10px 8px}
+.meta label,.field label{display:block;font-size:8px;font-weight:700;color:#4d555e;margin-bottom:3px}
+.field input,.field select,.meta input{width:100%;height:23px;border:1px solid #cbd1d7;border-radius:2px;padding:2px 6px;font-size:9px;color:#384250;background:#fff}
+.cl{font-size:23px;font-weight:700;line-height:1;color:#4f565d;margin-top:1px}
+.print-mark,.roll{display:none}
+.data{display:grid;grid-template-columns:1.08fr 1.04fr 1.14fr .9fr .86fr;border:1px solid #c5cad0;border-top:0}
+.data .field{padding:9px 11px;border-right:1px solid #d5d9df}
+.data .field:last-child{border-right:0}
+.artwork{border:1px solid #c4cad1;border-radius:2px;margin-top:15px;padding:10px 14px 12px;position:relative}
+.art-title{font-size:16px;font-weight:700;margin-bottom:9px}
+.art-box{height:278px;border:1px dashed #c5cbd2;border-radius:2px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background:#fff}
+
+.art-upload-zone{
+  position:absolute;
+  inset:0;
+  z-index:4;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  text-align:center;
+  background:rgba(255,255,255,.92);
+  border:2px dashed #b9c4d0;
+  border-radius:2px;
+  color:#657181;
+  transition:.18s ease;
+}
+.art-upload-zone.dragover{
+  border-color:var(--blue);
+  background:#eef5ff;
+  color:#2563eb;
+}
+.art-upload-icon{font-size:30px;line-height:1}
+.art-upload-title{font-size:13px;font-weight:700;color:#3f4a57}
+.art-upload-sub{font-size:10px;color:#7b8795}
+.art-upload-btn{
+  border:1px solid #b8c7dc;
+  background:#fff;
+  color:#2c67b8;
+  border-radius:5px;
+  padding:7px 14px;
+  font-size:11px;
+  cursor:pointer;
+}
+.art-upload-btn:hover{background:#f5f8fc}
+.art-file-input{display:none}
+.art-img.has-image{max-height:245px;object-fit:contain;object-position:center}
+.art-change-btn{
+  position:absolute;
+  right:10px;
+  bottom:10px;
+  z-index:5;
+  border:1px solid #b8c7dc;
+  background:rgba(255,255,255,.95);
+  color:#2c67b8;
+  border-radius:5px;
+  padding:6px 10px;
+  font-size:10px;
+  cursor:pointer;
+  display:none;
+}
+.art-box.has-image .art-upload-zone{display:none}
+.art-box.has-image .art-change-btn{display:block}
+@media print{
+  .art-upload-zone,.art-change-btn{display:none!important}
+}
+.art-img{width:68%;max-width:625px;display:block;box-shadow:0 2px 4px rgba(0,0,0,.12)}
+.metal{position:absolute;right:22%;top:-17px;font-size:10px;color:#202733;white-space:nowrap}
+.metal-line{position:absolute;width:72px;height:1px;background:#727a84;right:calc(22% + 3px);top:10px;transform:rotate(-35deg);transform-origin:right center}
+.process{margin-top:15px;border:1px solid #aeb6bf;border-radius:2px;padding:12px 13px 13px}
+.process-head{display:flex;align-items:flex-start;justify-content:space-between}
+.process-head h2{font-size:17px;margin:0 0 2px}
+.process-head p{font-size:10px;color:#6b7480;margin:0}
+.percent{font-size:23px;font-weight:700;line-height:1}
+.progress{height:9px;border-radius:8px;background:#edf0f3;margin:13px 0 17px;overflow:hidden}
+.progress span{display:block;height:100%;background:var(--blue);width:43%;border-radius:8px}
+.steps{display:grid;grid-template-columns:repeat(7,1fr);gap:0}
+.step{text-align:center;position:relative;min-width:0}
+.step:not(:last-child)::after{content:'›';position:absolute;right:-3px;top:7px;color:#778291;font-size:18px;font-weight:400}
+.circle{width:26px;height:26px;border-radius:50%;margin:0 auto 7px;border:1px solid #c3cbd5;background:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;color:#596371}
+.step.done .circle{background:var(--green);border-color:var(--green);color:#fff}
+.step.active .circle{background:var(--blue);border-color:var(--blue);color:#fff}
+.step-title{font-size:10px;font-weight:700;line-height:1.12;min-height:24px;padding:0 2px}
+.status{display:inline-block;font-size:8px;padding:3px 8px;border-radius:8px;background:#eef1f4;color:#6a7380;margin-top:4px}
+.step.active .status{background:#eef5ff;color:#1970e9;border:1px solid #9fc2ff}
+.step small{display:block;color:#7c8795;font-size:8px;line-height:1.25;margin-top:5px}
+.approval{border:1px solid #8f969f;margin-top:15px;background:#fff}
+.approval-title{height:40px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #9ca3aa;font-size:18px;font-weight:700;color:#4b5158;letter-spacing:.2px}
+.approval-body{display:grid;grid-template-columns:52% 48%;min-height:294px}
+.approval-left{border-right:1px solid #9ca3aa}
+.approval-row{display:grid;grid-template-columns:145px 12px 1fr;align-items:center;min-height:35px;padding:5px 10px;border-bottom:1px solid #cdd2d7;font-size:11px;color:#4f565e}
+.approval-row>span:first-child{font-weight:400}
+.approval-row>b,.approval-colours>b{font-weight:400;text-align:center}
+.approval-row input,.approval-row select,.approval-signature input,.approval-footer input{width:100%;height:22px;border:0;background:transparent;padding:0 5px;font-size:11px;color:#39414a;outline:none}
+.approval-size{grid-template-columns:145px 12px 12px 68px 22px 12px 12px 68px 22px}
+.dim-label{text-align:right}
+.approval-colours{display:grid;grid-template-columns:145px 12px 1fr;align-items:start;padding:7px 10px 8px;min-height:75px;font-size:11px;color:#4f565e}
+.colour-items{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;align-items:start}
+.colour-items label{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9px;text-align:center;min-width:0}
+.colour-items input{display:none}
+.colour-box{display:block;width:42px;height:30px;border:1px solid #8f969f;background:#fff}
+.colour-items label input:checked + .colour-box{outline:1px solid #5f6770;outline-offset:1px}
+.c-yellow{background:#e8df1d}.c-magenta{background:#b44a73}.c-black{background:#5b6064}.c-cyan{background:#6b8f92}.c-orange{background:#827f76}
+.colour-items small{font-size:8px;line-height:1.05;color:#646b73}
+.approval-finishing{display:grid;grid-template-columns:82px 1fr;min-width:0}
+.finishing-label{border-right:1px solid #cdd2d7;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#4f565e}
+.finishing-options{display:grid;grid-template-columns:1fr 1fr}
+.finishing-options label{display:flex;align-items:center;gap:7px;padding:5px 10px;border-bottom:1px solid #cdd2d7;font-size:10px;color:#4f565e;min-height:35px}
+.finishing-options label:nth-child(odd){border-right:1px solid #cdd2d7}
+.finishing-options input,.approval-direction input{width:13px;height:13px;margin:0;accent-color:#555c64}
+.approval-direction{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-top:1px solid #9ca3aa;border-bottom:1px solid #9ca3aa;min-height:37px;align-items:center;font-size:10px;color:#4f565e}
+.approval-direction label{padding:7px 10px;display:flex;align-items:center;gap:6px;border-right:1px solid #cdd2d7;white-space:nowrap}
+.approval-direction label:last-child{border-right:0}
+.approval-direction .direction-last{justify-content:flex-end}
+.approval-signature{display:grid;grid-template-columns:1fr 1fr;min-height:98px;border-bottom:1px solid #9ca3aa}
+.signature-area{padding:12px 12px;border-right:1px solid #cdd2d7;display:flex;flex-direction:column;gap:24px}
+.date-area{padding:12px 12px;display:flex;align-items:flex-end;gap:8px}
+.signature-area strong,.date-area strong{font-size:11px;color:#4f565e}
+.signature-area input{margin-top:auto}
+.approval-footer{display:grid;grid-template-columns:1.2fr 1.2fr 1fr;min-height:42px}
+.approval-footer>div{display:grid;grid-template-columns:auto 12px 1fr;align-items:center;padding:6px 10px;border-right:1px solid #cdd2d7;gap:6px;font-size:10px;color:#4f565e}
+.approval-footer>div:last-child{border-right:0}
+.approval-footer strong{white-space:nowrap}
+
+/* Alignment refinements */
+.header,.data,.artwork,.process,.approval{width:100%}
+.data .field{display:flex;flex-direction:column;justify-content:center;min-height:56px}
+.field label,.meta label{line-height:1.1}
+.field input,.field select,.meta input{display:block}
+.process-head{align-items:center}
+.approval-left,.approval-finishing,.finishing-options{min-width:0}
+.approval-direction label{justify-content:flex-start}
+
+
+.process-actions{display:flex;align-items:center;gap:8px}
+.process-edit-btn{
+  height:28px;
+  padding:0 10px;
+  border:1px solid #b8c7dc;
+  background:#fff;
+  color:#2c67b8;
+  border-radius:5px;
+  font-size:9px;
+  cursor:pointer;
+}
+.process-edit-btn:hover{background:#f5f8fc}
+@media print{.process-edit-btn{display:none!important}}
+
+.actions{display:flex;justify-content:center;gap:14px;margin-top:16px}
+@media screen and (max-width:900px){
+ .topbar{height:auto;padding:10px;justify-content:center;flex-wrap:wrap}
+ .wrap{padding:10px}.sheet{padding:8px}
+ .header,.approval-main{grid-template-columns:1fr}
+ .logo-panel{border-right:0;border-bottom:1px solid #b7bdc5;min-height:72px}
+ .meta{border-left:0;border-top:1px solid #b7bdc5}
+ .data{grid-template-columns:1fr 1fr}
+ .steps{grid-template-columns:1fr}
+ .step{display:grid;grid-template-columns:32px 1fr;text-align:left;column-gap:7px;margin-bottom:8px}
+ .step .circle{grid-row:span 2;margin:0}
+ .step:not(:last-child)::after{display:none}
+ .art-img{width:90%}
+ .left{border-right:0}
+ .bottom{grid-template-columns:1fr 1fr}
+ .dir{flex-wrap:wrap}.dir-right{margin-left:0}
+}
+@page{
+  size:A4 portrait;
+  margin:0;
+}
+
+@media print{
+  *{
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+  html,body{
+    width:210mm;
+    min-height:297mm;
+    margin:0!important;
+    padding:0!important;
+    background:#fff!important;
+  }
+  body{overflow:visible!important}
+  .topbar,.actions{display:none!important}
+  .wrap{
+    width:210mm!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  .sheet{
+    width:210mm!important;
+    min-height:297mm;
+    margin:0!important;
+    padding:8mm!important;
+    border:0!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+    background:#fff!important;
+  }
+  .header,.data,.artwork,.process,.approval{
+    break-inside:avoid!important;
+    page-break-inside:avoid!important;
+  }
+  .art-box{height:268px!important}
+  .art-img{max-height:238px!important}
+  input,select{
+    border:0!important;
+    outline:none!important;
+    background:transparent!important;
+    box-shadow:none!important;
+  }
+  input[type="checkbox"]{
+    appearance:auto!important;
+    -webkit-appearance:auto!important;
+  }
+  .art-upload-zone,.art-change-btn{display:none!important}
+  .steps{grid-template-columns:repeat(7,1fr)!important}
+  .step{
+    display:block!important;
+    text-align:center!important;
+    margin-bottom:0!important;
+  }
+  .step .circle{margin:0 auto 7px!important}
+  .step:not(:last-child)::after{display:block!important}
+  .bottom{grid-template-columns:1fr 1fr 1fr 1fr!important}
+  .dir{flex-wrap:nowrap!important}
+  .dir-right{margin-left:auto!important}
+
+  /* Compact MAKING PROCESS for single-page A4 printing */
+  .process{
+    margin-top:8px!important;
+    padding:7px 9px 8px!important;
+  }
+  .process-head h2{
+    font-size:13px!important;
+    margin:0 0 1px!important;
+  }
+  .process-head p{
+    font-size:7px!important;
+  }
+  .percent{
+    font-size:17px!important;
+  }
+  .progress{
+    height:5px!important;
+    margin:6px 0 8px!important;
+  }
+  .circle{
+    width:20px!important;
+    height:20px!important;
+    font-size:8px!important;
+    margin-bottom:3px!important;
+  }
+  .step:not(:last-child)::after{
+    top:1px!important;
+    right:-2px!important;
+    font-size:13px!important;
+  }
+  .step-title{
+    font-size:7.5px!important;
+    line-height:1.05!important;
+    min-height:18px!important;
+    padding:0 1px!important;
+  }
+  .status{
+    font-size:6.5px!important;
+    padding:2px 5px!important;
+    margin-top:2px!important;
+  }
+  .step small{
+    font-size:6.2px!important;
+    line-height:1.1!important;
+    margin-top:2px!important;
+  }
+
+  /* Lock the desktop form layout for physical A4 printing.
+     The mobile breakpoint is screen-only, so the header keeps its original
+     three-column structure when printed. */
+  .header{
+    display:grid!important;
+    grid-template-columns:150px 1fr 160px!important;
+    min-height:92px!important;
+  }
+  .logo-panel{
+    border-right:1px solid #b7bdc5!important;
+    border-bottom:0!important;
+    min-height:0!important;
+  }
+  .heading{
+    display:flex!important;
+  }
+  .meta{
+    border-left:0!important;
+    border-top:0!important;
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    grid-template-rows:auto auto 1fr!important;
+  }
+  .data{
+    grid-template-columns:1.08fr 1.04fr 1.14fr .9fr .86fr!important;
+  }
+
+
+  /* Final single-page A4 print fit */
+  html, body { overflow: visible !important; }
+  .sheet{
+    padding:5mm !important;
+  }
+  .header{
+    min-height:76px !important;
+  }
+  .logo-panel{
+    padding:5px 6px !important;
+  }
+  .heading{
+    padding:8px 10px 7px !important;
+  }
+  .heading h1{
+    font-size:16px !important;
+    margin-bottom:6px !important;
+  }
+  .heading li{
+    font-size:8px !important;
+    line-height:1.25 !important;
+    margin:1px 0 !important;
+  }
+  .inline-date{
+    width:82px !important;
+    height:19px !important;
+    font-size:8px !important;
+  }
+  .meta .cell{
+    padding:4px 6px !important;
+    font-size:7px !important;
+  }
+  .meta .big{
+    padding:5px 8px 6px !important;
+  }
+  .data .field{
+    padding:6px 8px !important;
+  }
+  .field input,.field select,.meta input{
+    height:20px !important;
+    font-size:8px !important;
+  }
+
+  .artwork{
+    margin-top:8px !important;
+    padding:7px 9px 8px !important;
+  }
+  .art-title{
+    font-size:13px !important;
+    margin-bottom:6px !important;
+  }
+  .art-box{
+    height:205px !important;
+  }
+  .art-img{
+    max-height:180px !important;
+  }
+  .metal{
+    font-size:8px !important;
+    top:-13px !important;
+  }
+
+  .process{
+    margin-top:8px !important;
+    padding:6px 8px 7px !important;
+  }
+  .process-head h2{
+    font-size:12px !important;
+  }
+  .process-head p{
+    font-size:6.5px !important;
+  }
+  .percent{
+    font-size:16px !important;
+  }
+  .progress{
+    height:5px !important;
+    margin:5px 0 7px !important;
+  }
+  .circle{
+    width:19px !important;
+    height:19px !important;
+    font-size:7.5px !important;
+    margin-bottom:2px !important;
+  }
+  .step:not(:last-child)::after{
+    top:0 !important;
+    font-size:12px !important;
+  }
+  .step-title{
+    font-size:7px !important;
+    min-height:16px !important;
+  }
+  .status{
+    font-size:6px !important;
+    padding:2px 4px !important;
+    margin-top:1px !important;
+  }
+  .step small{
+    font-size:5.7px !important;
+    margin-top:1px !important;
+  }
+
+  .approval{
+    margin-top:8px !important;
+  }
+  .approval-title{
+    height:32px !important;
+    font-size:15px !important;
+  }
+  .approval-body{
+    min-height:0 !important;
+  }
+  .approval-row{
+    min-height:29px !important;
+    padding:3px 7px !important;
+    font-size:9px !important;
+  }
+  .approval-size{
+    grid-template-columns:118px 10px 10px 54px 18px 10px 10px 54px 18px !important;
+  }
+  .approval-row input,.approval-row select,.approval-signature input,.approval-footer input{
+    height:18px !important;
+    font-size:9px !important;
+  }
+  .approval-colours{
+    padding:5px 7px 6px !important;
+    min-height:61px !important;
+    font-size:9px !important;
+  }
+  .colour-box{
+    width:30px !important;
+    height:22px !important;
+  }
+  .colour-items{
+    gap:2px !important;
+  }
+  .colour-items label{
+    font-size:7px !important;
+    gap:2px !important;
+  }
+  .colour-items small{
+    font-size:6.5px !important;
+  }
+  .approval-finishing{
+    grid-template-columns:65px 1fr !important;
+  }
+  .finishing-label{
+    font-size:9px !important;
+  }
+  .finishing-options label{
+    padding:3px 7px !important;
+    font-size:8px !important;
+    min-height:28px !important;
+    gap:5px !important;
+  }
+  .approval-direction{
+    min-height:29px !important;
+    font-size:8px !important;
+  }
+  .approval-direction label{
+    padding:5px 7px !important;
+    gap:4px !important;
+  }
+  .approval-signature{
+    min-height:60px !important;
+  }
+  .signature-area{
+    padding:7px 8px !important;
+    gap:8px !important;
+  }
+  .date-area{
+    padding:7px 8px !important;
+  }
+  .signature-area strong,.date-area strong{
+    font-size:9px !important;
+  }
+  .approval-footer{
+    min-height:32px !important;
+  }
+  .approval-footer>div{
+    padding:4px 7px !important;
+    font-size:8px !important;
+    gap:4px !important;
+  }
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="btn" onclick="saveForm()">▣ &nbsp; Save Production Form</button>
+  <button class="btn" type="button" onclick="window.location.href='making-process.html'">⚙ &nbsp; Update Making Process</button>
+  <button class="btn primary" onclick="window.print()">▣ &nbsp; Print Form</button>
+</div>
+
+<div class="wrap">
+<div class="sheet">
+<section class="header">
+ <div class="logo-panel">
+   <div class="logo-swoosh">⌁</div>
+   <div class="logo-name">AART STROKE</div>
+   <div class="logo-sub">LABELS &amp; PACKAGING</div>
+   <div class="logo-foot">PRINT • LABEL • PACK</div>
+ </div>
+ <div class="heading">
+   <h1>AFFIRMATION OF DIGITAL DATA</h1>
+   <ul>
+    <li>FOR APPROVAL OF ALL TEXT MATTER.</li>
+    <li>ACTUAL COLORS WILL BE MATCHED AS PER PANTONE OR SAMPLE.</li>
+    <li>SUBMITTED ON : <input id="submittedOn" class="inline-date" type="date"></li>
+   </ul>
+ </div>
+ <div class="meta">
+   <div class="cell"><label>Format No.</label><input id="formatNo" value="F-001"></div>
+   <div class="cell"><label>Rev. Date</label><input id="revDate" type="date"></div>
+   <div class="big"><div class="cl">CL</div></div>
+ </div>
+</section>
+<section class="data">
+ <div class="field"><label>Submitted by</label><input id="submittedBy" value="Rohit Sharma"></div>
+ <div class="field"><label>Submitted for</label><select id="submittedFor"><option>Production</option><option>Customer</option><option>Approval</option></select></div>
+ <div class="field"><label>Ink Consumption</label><input id="ink" value="5%"></div>
+ <div class="field"><label>Time</label><input id="time" value="4 Days"></div>
+ <div class="field"><label>Dye No.</label><input id="dye" value="D-102"></div>
+</section>
+<section class="artwork">
+  <div class="art-title">Sticker / Label Artwork</div>
+  <div id="artBox" class="art-box">
+    <div id="artUploadZone" class="art-upload-zone">
+      <div class="art-upload-icon">↥</div>
+      <div class="art-upload-title">Drag &amp; Drop Sticker / Label Artwork</div>
+      <div class="art-upload-sub">or click the button below to upload an image</div>
+      <button type="button" class="art-upload-btn" id="artUploadBtn">Upload File</button>
+      <div class="art-upload-sub">PNG, JPG, JPEG, WEBP, SVG</div>
+    </div>
+    <input id="artFileInput" class="art-file-input" type="file"
+           accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml">
+    <div class="metal">Metallic Effect</div>
+    <div class="metal-line"></div>
+    <img id="artPreview" class="art-img" alt="Sticker / label artwork" src="">
+    <button type="button" class="art-change-btn" id="artChangeBtn">Change Artwork</button>
+  </div>
+</section>
+<section class="process">
+ <div class="process-head">
+   <div><h2>MAKING PROCESS</h2><p>Production status of this artwork</p></div>
+   <div class="process-actions">
+     <div class="percent" id="pct">43%</div>
+     <button type="button" class="process-edit-btn" onclick="window.location.href='making-process.html'">Edit</button>
+   </div>
+ </div>
+ <div class="progress"><span id="bar"></span></div>
+ <div class="steps" id="steps"></div>
+</section>
+<section class="approval">
+ <div class="approval-title">FOR APPROVAL</div>
+ <div class="approval-body">
+  <div class="approval-left">
+   <div class="approval-row"><span>Customer Name</span><b>:</b><input id="name" value="ABC Traders"></div>
+   <div class="approval-row"><span>Label Description</span><b>:</b><input id="description" value="Herbal Hair Oil Label"></div>
+   <div class="approval-row approval-size"><span>Label Size (mm)</span><b>:</b><span class="dim-label">W</span><input id="w" value="80"><span>mm</span><span class="dim-label">H</span><input id="h" value="120"><span>mm</span></div>
+   <div class="approval-row"><span>Substrate</span><b>:</b><select id="material"><option>Glossy Paper</option><option>PP Silver</option><option>Paper</option></select></div>
+   <div class="approval-row"><span>Product Code</span><b>:</b><input id="productCode" value="AD"></div>
+   <div class="approval-row"><span>Qty.</span><b>:</b><input id="qty" value="5000"></div>
+   <div class="approval-colours">
+    <span class="colours-label">Colours</span><b>:</b>
+    <div class="colour-items">
+     <label><input type="checkbox" checked><span class="colour-box c-yellow"></span><small>Yellow</small></label>
+     <label><input type="checkbox" checked><span class="colour-box c-magenta"></span><small>MAGENTA</small></label>
+     <label><input type="checkbox" checked><span class="colour-box c-black"></span><small>BLACK</small></label>
+     <label><input type="checkbox" checked><span class="colour-box c-cyan"></span><small>CYAN</small></label>
+     <label><input type="checkbox" checked><span class="colour-box c-orange"></span><small>Special Orange</small></label>
+     <label><input type="checkbox"><span class="colour-box"></span><small>VARNISH</small></label>
+     <label><input type="checkbox"><span class="colour-box"></span><small>&nbsp;</small></label>
+    </div>
+   </div>
+  </div>
+  <div class="approval-finishing">
+   <div class="finishing-label">Finishing :</div>
+   <div class="finishing-options">
+    <label><input type="checkbox" checked> Gloss Varnish</label>
+    <label><input type="checkbox"> Lamination</label>
+    <label><input type="checkbox"> Spot Varnish</label>
+    <label><input type="checkbox"> Barcode Tested</label>
+    <label><input type="checkbox"> Hot Foil Stamping</label>
+    <label><input type="checkbox"> Cold Foil Stamping</label>
+    <label><input type="checkbox" checked> Roll Form</label>
+    <label><input type="checkbox"> Sheet Form</label>
+   </div>
+  </div>
+ </div>
+ <div class="approval-direction">
+  <label>Clockwise : <input type="checkbox" checked></label>
+  <label>Anti Clockwise : <input type="checkbox"></label>
+  <label class="direction-last">Left to Right <input type="checkbox"></label>
+  <label>Top to Bottom <input type="checkbox"></label>
+ </div>
+ <div class="approval-signature">
+  <div class="signature-area"><strong>Customer Signature :</strong><input id="signature" placeholder="Enter signature name"></div>
+  <div class="date-area"><strong>Date :</strong><input id="approvalDate" type="date"></div>
+ </div>
+ <div class="approval-footer">
+  <div><strong>PREPARED BY</strong><b>:</b><input id="preparedBy" value="Rohit Sharma"></div>
+  <div><strong>Checked By</strong><b>:</b><input id="checkedBy" placeholder="Enter name"></div>
+  <div><strong>APPROVED BY</strong><b>:</b><input id="approvedBy" placeholder="Enter name"></div>
+ </div>
+</section>
+<div class="actions">
+ <button class="btn" onclick="saveForm()">▣ &nbsp; Save Production Form</button>
+ <button class="btn primary" onclick="window.print()">▣ &nbsp; Print Form</button>
+</div>
+</div></div>
+<script>
+const defaultStages=[
+  {name:"Artwork Received",status:"done",date:"14-09-2025",time:"10:15 AM"},
+  {name:"Artwork Checking",status:"done",date:"14-09-2025",time:"11:30 AM"},
+  {name:"Printing",status:"active",date:"14-09-2025",time:"02:10 PM"},
+  {name:"Finishing",status:"pending",date:"",time:""},
+  {name:"Quality Checking",status:"pending",date:"",time:""},
+  {name:"Customer Approval",status:"pending",date:"",time:""},
+  {name:"Completed",status:"pending",date:"",time:""}
+];
+
+let stages = JSON.parse(JSON.stringify(defaultStages));
+let processProgress = 43;
+
+function statusLabel(status){
+  return status==='done' ? 'Completed' : status==='active' ? 'In Progress' : 'Pending';
+}
+
+function escapeHtml(value){
+  return String(value ?? '').replace(/[&<>"']/g, function(ch){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch];
+  });
+}
+
+function toIsoDate(dateText){
+  if(!dateText) return '';
+  const m=String(dateText).match(/^(\d{2})-(\d{2})-(\d{4})$/);
+  return m ? `${m[3]}-${m[2]}-${m[1]}` : '';
+}
+
+function to24Hour(timeText){
+  if(!timeText) return '';
+  const m=String(timeText).match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if(!m) return '';
+  let h=parseInt(m[1],10), min=m[2], ap=m[3].toUpperCase();
+  if(ap==='PM' && h<12) h+=12;
+  if(ap==='AM' && h===12) h=0;
+  return String(h).padStart(2,'0')+':'+min;
+}
+
+function prettyDate(v){
+  if(!v) return '';
+  const parts=v.split('-');
+  return parts.length===3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : v;
+}
+
+function prettyTime(v){
+  if(!v) return '';
+  const parts=v.split(':');
+  if(parts.length<2) return v;
+  let h=parseInt(parts[0],10), m=parts[1];
+  const ap=h>=12?'PM':'AM';
+  h=h%12||12;
+  return `${String(h).padStart(2,'0')}:${m} ${ap}`;
+}
+
+function renderStages(){
+  const root=document.getElementById('steps');
+  root.innerHTML='';
+  stages.forEach((s,i)=>{
+    const el=document.createElement('div');
+    el.className='step '+s.status;
+    const dateTime = s.date && s.time ? escapeHtml(s.date)+'<br>'+escapeHtml(s.time) : '—';
+    el.innerHTML =
+      '<div class="circle">'+(s.status==='done'?'✓':i+1)+'</div>' +
+      '<div><div class="step-title">'+escapeHtml(s.name)+'</div>' +
+      '<div class="status">'+statusLabel(s.status)+'</div>' +
+      '<small>'+dateTime+'</small></div>';
+    root.appendChild(el);
+  });
+  document.getElementById('pct').textContent = processProgress + '%';
+  document.getElementById('bar').style.width = processProgress + '%';
+}
+
+function saveForm(){
+  const ids=['formatNo','revDate','submittedOn','submittedBy','submittedFor','ink','time','dye','name','description','w','h','material','qty','productCode','signature','approvalDate','preparedBy','checkedBy','approvedBy'];
+  const d={};
+  ids.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) d[id]=el.value;
+  });
+  d.process={stages,progress:processProgress};
+  localStorage.setItem('production-form',JSON.stringify(d));
+  localStorage.setItem('production-process',JSON.stringify({stages,progress:processProgress}));
+  alert('Production form saved.');
+}
+
+function loadForm(){
+  try{
+    const d=JSON.parse(localStorage.getItem('production-form')||'{}');
+    Object.keys(d).forEach(id=>{
+      if(id==='process') return;
+      const el=document.getElementById(id);
+      if(el) el.value=d[id];
+    });
+    if(d.process){
+      if(Array.isArray(d.process.stages)) stages=d.process.stages;
+      if(Number.isFinite(Number(d.process.progress))) processProgress=Number(d.process.progress);
+    }else{
+      const savedProcess=JSON.parse(localStorage.getItem('production-process')||'{}');
+      if(Array.isArray(savedProcess.stages)) stages=savedProcess.stages;
+      if(Number.isFinite(Number(savedProcess.progress))) processProgress=Number(savedProcess.progress);
+    }
+  }catch(e){}
+}
+
+const today=new Date();
+['revDate','submittedOn','approvalDate'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el) el.valueAsDate=today;
+});
+loadForm();
+renderStages();
+</script>
+
+<script>
+(function(){
+  const artBox = document.getElementById('artBox');
+  const zone = document.getElementById('artUploadZone');
+  const input = document.getElementById('artFileInput');
+  const preview = document.getElementById('artPreview');
+  const uploadBtn = document.getElementById('artUploadBtn');
+  const changeBtn = document.getElementById('artChangeBtn');
+
+  if(!artBox || !zone || !input || !preview) return;
+
+  function showArtwork(file){
+    if(!file || !file.type.startsWith('image/')){
+      alert('Please upload a valid image file.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e){
+      preview.src = e.target.result;
+      preview.classList.add('has-image');
+      artBox.classList.add('has-image');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  uploadBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    input.click();
+  });
+
+  changeBtn.addEventListener('click', function(){
+    input.click();
+  });
+
+  zone.addEventListener('click', function(e){
+    if(e.target !== uploadBtn) input.click();
+  });
+
+  input.addEventListener('change', function(){
+    if(this.files && this.files[0]) showArtwork(this.files[0]);
+  });
+
+  ['dragenter','dragover'].forEach(function(eventName){
+    artBox.addEventListener(eventName, function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      zone.classList.add('dragover');
+    });
+  });
+
+  ['dragleave','drop'].forEach(function(eventName){
+    artBox.addEventListener(eventName, function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      zone.classList.remove('dragover');
+    });
+  });
+
+  artBox.addEventListener('drop', function(e){
+    const files = e.dataTransfer && e.dataTransfer.files;
+    if(files && files.length) showArtwork(files[0]);
+  });
+})();
+</script>
+
+</body>
+</html> 
