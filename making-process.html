@@ -48,7 +48,7 @@ button,input,select{font:inherit}
   margin-top:12px;padding:12px 10px;border-top:1px solid #e2e6ea;
 }
 .progress-card label{font-size:10px;font-weight:700;color:#4d5762}
-.progress-card input{width:90px;height:32px;border:1px solid #cbd1d7;border-radius:4px;padding:4px 8px;font-size:10px}
+.auto-progress{width:90px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid #cbd1d7;border-radius:4px;padding:4px 8px;font-size:13px;font-weight:700;color:#39414a;background:#fafbfc}
 .progress-card small{font-size:9px;color:var(--muted)}
 .preview{margin-top:16px}
 .preview-head{padding:12px 14px;border-bottom:1px solid #e2e6ea;font-size:11px;font-weight:700}
@@ -64,9 +64,9 @@ button,input,select{font:inherit}
 .step.done .circle{background:var(--green);border-color:var(--green);color:#fff}
 .step.active .circle{background:var(--blue);border-color:var(--blue);color:#fff}
 .step-title{font-size:9px;font-weight:700;line-height:1.15;min-height:24px;padding:0 2px}
-.status{display:inline-block;font-size:7px;padding:3px 7px;border-radius:8px;background:#eef1f4;color:#6a7380;margin-top:4px}
+.status{display:inline-block;font-size:9px;padding:4px 8px;border-radius:8px;background:#eef1f4;color:#6a7380;margin-top:4px}
 .step.active .status{background:#eef5ff;color:#1970e9;border:1px solid #9fc2ff}
-.step small{display:block;color:#7c8795;font-size:7px;line-height:1.25;margin-top:5px}
+.step small{display:block;color:#7c8795;font-size:9px;line-height:1.25;margin-top:5px;min-height:11px}
 .note{padding:12px 14px;font-size:9px;color:#6b7480;border-top:1px solid #e2e6ea;background:#fafbfc}
 .message{display:none;margin:10px 14px 0;padding:8px 10px;border-radius:4px;font-size:9px;background:#edf8f1;color:#2f7955;border:1px solid #bfe1cf}
 .message.show{display:block}
@@ -106,12 +106,12 @@ button,input,select{font:inherit}
     <div class="editor">
       <div id="stageEditorList"></div>
       <div class="progress-card">
-        <label for="processProgressInput">Overall Progress</label>
-        <input id="processProgressInput" type="number" min="0" max="100" value="43">
-        <small>Set the current completion percentage from 0 to 100.</small>
+        <label>Overall Progress</label>
+        <div class="auto-progress" id="processProgressValue">0%</div>
+        <small>Calculated automatically from the stage statuses.</small>
       </div>
     </div>
-    <div class="note">Tip: Keep completed stages as “Completed”, the current production stage as “In Progress”, and future stages as “Pending”.</div>
+    <div class="note">Tip: Set each stage status. The overall percentage is calculated automatically; date and time stay blank until you enter them.</div>
   </div>
 
   <div class="card preview">
@@ -126,9 +126,9 @@ button,input,select{font:inherit}
 
 <script>
 const defaultStages=[
-  {name:"Artwork Received",status:"done",date:"14-09-2025",time:"10:15 AM"},
-  {name:"Artwork Checking",status:"done",date:"14-09-2025",time:"11:30 AM"},
-  {name:"Printing",status:"active",date:"14-09-2025",time:"02:10 PM"},
+  {name:"Artwork Received",status:"pending",date:"",time:""},
+  {name:"Artwork Checking",status:"pending",date:"",time:""},
+  {name:"Printing",status:"pending",date:"",time:""},
   {name:"Finishing",status:"pending",date:"",time:""},
   {name:"Quality Checking",status:"pending",date:"",time:""},
   {name:"Customer Approval",status:"pending",date:"",time:""},
@@ -136,7 +136,7 @@ const defaultStages=[
 ];
 
 let stages=JSON.parse(JSON.stringify(defaultStages));
-let processProgress=43;
+let processProgress=0;
 
 function escapeHtml(value){
   return String(value ?? '').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
@@ -193,15 +193,27 @@ function buildEditor(){
     `;
     list.appendChild(row);
   });
-  document.getElementById('processProgressInput').value=processProgress;
 }
+function calculateProcessProgress(){
+  if(!stages.length) return 0;
+  const doneCount=stages.filter(s=>s.status==='done').length;
+  const activeCount=stages.filter(s=>s.status==='active').length;
+  return Math.round(((doneCount + activeCount*0.5)/stages.length)*100);
+}
+
+function syncProcessProgress(){
+  processProgress=calculateProcessProgress();
+  return processProgress;
+}
+
 function renderPreview(){
   const root=document.getElementById('steps');
   root.innerHTML='';
+  syncProcessProgress();
   stages.forEach((s,i)=>{
     const el=document.createElement('div');
     el.className='step '+s.status;
-    const dt=s.date&&s.time?escapeHtml(s.date)+'<br>'+escapeHtml(s.time):'—';
+    const dt=s.date&&s.time?escapeHtml(s.date)+'<br>'+escapeHtml(s.time):'';
     el.innerHTML='<div class="circle">'+(s.status==='done'?'✓':i+1)+'</div>'+
       '<div><div class="step-title">'+escapeHtml(s.name)+'</div>'+
       '<div class="status">'+statusLabel(s.status)+'</div>'+
@@ -210,6 +222,8 @@ function renderPreview(){
   });
   document.getElementById('pct').textContent=processProgress+'%';
   document.getElementById('bar').style.width=processProgress+'%';
+  const autoValue=document.getElementById('processProgressValue');
+  if(autoValue) autoValue.textContent=processProgress+'%';
 }
 function readEditor(){
   document.querySelectorAll('#stageEditorList [data-stage]').forEach(el=>{
@@ -220,11 +234,11 @@ function readEditor(){
     else if(key==='date') stages[i].date=prettyDate(el.value);
     else if(key==='time') stages[i].time=prettyTime(el.value);
   });
-  const v=Number(document.getElementById('processProgressInput').value);
-  processProgress=Math.max(0,Math.min(100,Number.isFinite(v)?v:0));
+  syncProcessProgress();
 }
 function saveProcess(){
   readEditor();
+  syncProcessProgress();
   localStorage.setItem('production-process',JSON.stringify({stages,progress:processProgress}));
   // Keep production-form process data synchronized when it already exists.
   try{
@@ -241,19 +255,17 @@ function loadProcess(){
   try{
     const saved=JSON.parse(localStorage.getItem('production-process')||'{}');
     if(Array.isArray(saved.stages)) stages=saved.stages;
-    if(Number.isFinite(Number(saved.progress))) processProgress=Number(saved.progress);
     else{
       const form=JSON.parse(localStorage.getItem('production-form')||'{}');
-      if(form.process){
-        if(Array.isArray(form.process.stages)) stages=form.process.stages;
-        if(Number.isFinite(Number(form.process.progress))) processProgress=Number(form.process.progress);
-      }
+      if(form.process && Array.isArray(form.process.stages)) stages=form.process.stages;
     }
   }catch(e){}
+  syncProcessProgress();
 }
+
 function resetProcess(){
   stages=JSON.parse(JSON.stringify(defaultStages));
-  processProgress=43;
+  processProgress=0;
   localStorage.setItem('production-process',JSON.stringify({stages,progress:processProgress}));
   try{
     const form=JSON.parse(localStorage.getItem('production-form')||'{}');
@@ -263,14 +275,14 @@ function resetProcess(){
   buildEditor();
   renderPreview();
 }
-document.getElementById('processProgressInput').addEventListener('input',e=>{
-  const v=Math.max(0,Math.min(100,Number(e.target.value)||0));
-  processProgress=v;
-  renderPreview();
-});
 loadProcess();
 buildEditor();
 renderPreview();
+
+document.getElementById('stageEditorList').addEventListener('change',function(){
+  readEditor();
+  renderPreview();
+});
 </script>
 </body>
 </html>
