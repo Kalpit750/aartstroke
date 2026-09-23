@@ -113,9 +113,9 @@ button,input,select{font:inherit}
 .step.done .circle{background:var(--green);border-color:var(--green);color:#fff}
 .step.active .circle{background:var(--blue);border-color:var(--blue);color:#fff}
 .step-title{font-size:10px;font-weight:700;line-height:1.12;min-height:24px;padding:0 2px}
-.status{display:inline-block;font-size:8px;padding:3px 8px;border-radius:8px;background:#eef1f4;color:#6a7380;margin-top:4px}
+.status{display:inline-block;font-size:9px;padding:3px 8px;border-radius:8px;background:#eef1f4;color:#6a7380;margin-top:4px}
 .step.active .status{background:#eef5ff;color:#1970e9;border:1px solid #9fc2ff}
-.step small{display:block;color:#7c8795;font-size:8px;line-height:1.25;margin-top:5px}
+.step small{display:block;color:#7c8795;font-size:9px;line-height:1.25;margin-top:5px;min-height:11px}
 .approval{border:1px solid #8f969f;margin-top:15px;background:#fff}
 .approval-title{height:40px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #9ca3aa;font-size:18px;font-weight:700;color:#4b5158;letter-spacing:.2px}
 .approval-body{display:grid;grid-template-columns:52% 48%;min-height:294px}
@@ -428,12 +428,12 @@ button,input,select{font:inherit}
     min-height:16px !important;
   }
   .status{
-    font-size:6px !important;
+    font-size:7px !important;
     padding:2px 4px !important;
     margin-top:1px !important;
   }
   .step small{
-    font-size:5.7px !important;
+    font-size:6.5px !important;
     margin-top:1px !important;
   }
 
@@ -595,7 +595,7 @@ button,input,select{font:inherit}
    <div class="approval-row"><span>Customer Name</span><b>:</b><input id="name" value="ABC Traders"></div>
    <div class="approval-row"><span>Label Description</span><b>:</b><input id="description" value="Herbal Hair Oil Label"></div>
    <div class="approval-row approval-size"><span>Label Size (mm)</span><b>:</b><span class="dim-label">W</span><input id="w" value="80"><span>mm</span><span class="dim-label">H</span><input id="h" value="120"><span>mm</span></div>
-   <div class="approval-row"><span>Substrate</span><b>:</b><select id="material"><option>Glossy Paper</option><option>PP Silver</option><option>Paper</option></select></div>
+   <div class="approval-row"><span>Substrate</span><b>:</b><select id="material"><option>Glossy Paper</option><option>PP Silver</option><option>PP White</option><option>PP Clear</option><option>PPE</option><option>Paper</option></select></div>
    <div class="approval-row"><span>Product Code</span><b>:</b><input id="productCode" value="AD"></div>
    <div class="approval-row"><span>Qty.</span><b>:</b><input id="qty" value="5000"></div>
    <div class="approval-colours">
@@ -648,17 +648,17 @@ button,input,select{font:inherit}
 </div></div>
 <script>
 const defaultStages=[
-  {name:"Artwork Received",status:"done",date:"14-09-2025",time:"10:15 AM"},
-  {name:"Artwork Checking",status:"done",date:"14-09-2025",time:"11:30 AM"},
-  {name:"Printing",status:"active",date:"14-09-2025",time:"02:10 PM"},
+  {name:"Artwork Received",status:"pending",date:"",time:""},
+  {name:"Artwork Checking",status:"pending",date:"",time:""},
+  {name:"Printing",status:"pending",date:"",time:""},
   {name:"Finishing",status:"pending",date:"",time:""},
   {name:"Quality Checking",status:"pending",date:"",time:""},
   {name:"Customer Approval",status:"pending",date:"",time:""},
   {name:"Completed",status:"pending",date:"",time:""}
 ];
 
-let stages = JSON.parse(JSON.stringify(defaultStages));
-let processProgress = 43;
+let stages=JSON.parse(JSON.stringify(defaultStages));
+let processProgress=0;
 
 function statusLabel(status){
   return status==='done' ? 'Completed' : status==='active' ? 'In Progress' : 'Pending';
@@ -702,13 +702,26 @@ function prettyTime(v){
   return `${String(h).padStart(2,'0')}:${m} ${ap}`;
 }
 
+function calculateProcessProgress(){
+  if(!stages.length) return 0;
+  const doneCount=stages.filter(s=>s.status==='done').length;
+  const activeCount=stages.filter(s=>s.status==='active').length;
+  return Math.round(((doneCount + activeCount*0.5)/stages.length)*100);
+}
+
+function syncProcessProgress(){
+  processProgress=calculateProcessProgress();
+  return processProgress;
+}
+
 function renderStages(){
   const root=document.getElementById('steps');
   root.innerHTML='';
+  syncProcessProgress();
   stages.forEach((s,i)=>{
     const el=document.createElement('div');
     el.className='step '+s.status;
-    const dateTime = s.date && s.time ? escapeHtml(s.date)+'<br>'+escapeHtml(s.time) : '—';
+    const dateTime=s.date&&s.time?escapeHtml(s.date)+'<br>'+escapeHtml(s.time):'';
     el.innerHTML =
       '<div class="circle">'+(s.status==='done'?'✓':i+1)+'</div>' +
       '<div><div class="step-title">'+escapeHtml(s.name)+'</div>' +
@@ -716,11 +729,12 @@ function renderStages(){
       '<small>'+dateTime+'</small></div>';
     root.appendChild(el);
   });
-  document.getElementById('pct').textContent = processProgress + '%';
-  document.getElementById('bar').style.width = processProgress + '%';
+  document.getElementById('pct').textContent=processProgress+'%';
+  document.getElementById('bar').style.width=processProgress+'%';
 }
 
 function saveForm(){
+  syncProcessProgress();
   const ids=['formatNo','revDate','submittedOn','submittedBy','submittedFor','ink','time','dye','name','description','w','h','material','qty','productCode','signature','approvalDate','preparedBy','checkedBy','approvedBy'];
   const d={};
   ids.forEach(id=>{
@@ -741,15 +755,14 @@ function loadForm(){
       const el=document.getElementById(id);
       if(el) el.value=d[id];
     });
-    if(d.process){
-      if(Array.isArray(d.process.stages)) stages=d.process.stages;
-      if(Number.isFinite(Number(d.process.progress))) processProgress=Number(d.process.progress);
+    if(d.process && Array.isArray(d.process.stages)){
+      stages=d.process.stages;
     }else{
       const savedProcess=JSON.parse(localStorage.getItem('production-process')||'{}');
       if(Array.isArray(savedProcess.stages)) stages=savedProcess.stages;
-      if(Number.isFinite(Number(savedProcess.progress))) processProgress=Number(savedProcess.progress);
     }
   }catch(e){}
+  syncProcessProgress();
 }
 
 const today=new Date();
@@ -819,7 +832,7 @@ renderStages();
       zone.classList.remove('dragover');
     });
   });
-
+++
   artBox.addEventListener('drop', function(e){
     const files = e.dataTransfer && e.dataTransfer.files;
     if(files && files.length) showArtwork(files[0]);
