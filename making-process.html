@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Making Process Update</title>
+<style>
+:root{--page:#f7f7f8;--card:#fff;--line:#d3d8de;--text:#1e2937;--muted:#697584;--blue:#2f78e7;--green:#45ad7b}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--page);font-family:Arial,Helvetica,sans-serif;color:var(--text)}
+body{min-height:100vh}
+button,input,select{font:inherit}
+.page{max-width:1100px;margin:0 auto;padding:28px 18px 40px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.title-wrap h1{margin:0;font-size:22px;color:#39414a}
+.title-wrap p{margin:5px 0 0;font-size:11px;color:var(--muted)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{height:34px;padding:0 15px;border-radius:5px;border:1px solid #b8c7dc;background:#fff;color:#2c67b8;font-size:11px;cursor:pointer}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.card{background:#fff;border:1px solid var(--line);border-radius:6px;box-shadow:0 2px 7px rgba(18,34,49,.06);overflow:hidden}
+.card-head{padding:14px 16px;border-bottom:1px solid #e2e6ea;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.card-head strong{font-size:13px}
+.card-head span{font-size:10px;color:var(--muted)}
+.editor{padding:14px}
+.stage-row{
+  display:grid;
+  grid-template-columns:42px 1.7fr 1fr 1fr 1fr;
+  gap:10px;
+  align-items:end;
+  padding:12px 10px;
+  border:1px solid #e0e4e8;
+  border-radius:5px;
+  margin-bottom:9px;
+  background:#fff;
+}
+.stage-no{
+  width:28px;height:28px;border-radius:50%;background:#eef5ff;color:#2563eb;
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;
+  margin-bottom:1px;
+}
+.field label{display:block;font-size:9px;font-weight:700;color:#56616e;margin-bottom:4px}
+.field input,.field select{
+  width:100%;height:32px;border:1px solid #cbd1d7;border-radius:4px;
+  padding:4px 8px;font-size:10px;color:#384250;background:#fff;
+}
+.progress-card{
+  display:grid;grid-template-columns:auto 90px 1fr;gap:10px;align-items:center;
+  margin-top:12px;padding:12px 10px;border-top:1px solid #e2e6ea;
+}
+.progress-card label{font-size:10px;font-weight:700;color:#4d5762}
+.auto-progress{width:90px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid #cbd1d7;border-radius:4px;padding:4px 8px;font-size:13px;font-weight:700;color:#39414a;background:#fafbfc}
+.progress-card small{font-size:9px;color:var(--muted)}
+.preview{margin-top:16px}
+.preview-head{padding:12px 14px;border-bottom:1px solid #e2e6ea;font-size:11px;font-weight:700}
+.preview-body{padding:16px}
+.percent-line{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted)}
+.percent{font-size:24px;font-weight:700;color:#39414a}
+.progress{height:9px;border-radius:8px;background:#edf0f3;margin:10px 0 18px;overflow:hidden}
+.progress span{display:block;height:100%;background:var(--blue);width:0;border-radius:8px}
+.steps{display:grid;grid-template-columns:repeat(7,1fr);gap:0}
+.step{text-align:center;position:relative;min-width:0}
+.step:not(:last-child)::after{content:'›';position:absolute;right:-4px;top:7px;color:#778291;font-size:18px}
+.circle{width:27px;height:27px;border-radius:50%;margin:0 auto 7px;border:1px solid #c3cbd5;background:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;color:#596371}
+.step.done .circle{background:var(--green);border-color:var(--green);color:#fff}
+.step.active .circle{background:var(--blue);border-color:var(--blue);color:#fff}
+.step-title{font-size:9px;font-weight:700;line-height:1.15;min-height:24px;padding:0 2px}
+.status{display:inline-block;font-size:9px;padding:4px 8px;border-radius:8px;background:#eef1f4;color:#6a7380;margin-top:4px}
+.step.active .status{background:#eef5ff;color:#1970e9;border:1px solid #9fc2ff}
+.step small{display:block;color:#7c8795;font-size:9px;line-height:1.25;margin-top:5px;min-height:11px}
+.note{padding:12px 14px;font-size:9px;color:#6b7480;border-top:1px solid #e2e6ea;background:#fafbfc}
+.message{display:none;margin:10px 14px 0;padding:8px 10px;border-radius:4px;font-size:9px;background:#edf8f1;color:#2f7955;border:1px solid #bfe1cf}
+.message.show{display:block}
+@media screen and (max-width:760px){
+  .topbar{align-items:flex-start;flex-direction:column}
+  .stage-row{grid-template-columns:34px 1fr 1fr}
+  .stage-row .field:nth-child(4),.stage-row .field:nth-child(5){grid-column:2 / -1}
+  .steps{grid-template-columns:1fr}
+  .step{display:grid;grid-template-columns:30px 1fr;text-align:left;column-gap:8px;margin-bottom:8px}
+  .step .circle{grid-row:span 2;margin:0}
+  .step:not(:last-child)::after{display:none}
+  .progress-card{grid-template-columns:1fr 90px}
+  .progress-card small{grid-column:1 / -1}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <div class="title-wrap">
+      <h1>Making Process Update</h1>
+      <p>Update production stages, status, date, time and overall progress.</p>
+    </div>
+    <div class="actions">
+      <button class="btn" type="button" onclick="resetProcess()">Reset</button>
+      <button class="btn" type="button" onclick="window.location.href='production-form.html'">Back to Production Form</button>
+      <button class="btn primary" type="button" onclick="saveProcess()">Save Changes</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <strong>Production Stages</strong>
+      <span>Changes are shared with the production form.</span>
+    </div>
+    <div id="message" class="message">Making process updated successfully.</div>
+    <div class="editor">
+      <div id="stageEditorList"></div>
+      <div class="progress-card">
+        <label>Overall Progress</label>
+        <div class="auto-progress" id="processProgressValue">0%</div>
+        <small>Calculated automatically from the stage statuses.</small>
+      </div>
+    </div>
+    <div class="note">Tip: Set each stage status. The overall percentage is calculated automatically; date and time stay blank until you enter them.</div>
+  </div>
+
+  <div class="card preview">
+    <div class="preview-head">Live Preview</div>
+    <div class="preview-body">
+      <div class="percent-line"><span>Production status of this artwork</span><span class="percent" id="pct">43%</span></div>
+      <div class="progress"><span id="bar"></span></div>
+      <div class="steps" id="steps"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const defaultStages=[
+  {name:"Artwork Received",status:"pending",date:"",time:""},
+  {name:"Artwork Checking",status:"pending",date:"",time:""},
+  {name:"Printing",status:"pending",date:"",time:""},
+  {name:"Finishing",status:"pending",date:"",time:""},
+  {name:"Quality Checking",status:"pending",date:"",time:""},
+  {name:"Customer Approval",status:"pending",date:"",time:""},
+  {name:"Completed",status:"pending",date:"",time:""}
+];
+
+let stages=JSON.parse(JSON.stringify(defaultStages));
+let processProgress=0;
+
+function escapeHtml(value){
+  return String(value ?? '').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
+}
+function toIsoDate(v){
+  if(!v) return '';
+  const m=String(v).match(/^(\d{2})-(\d{2})-(\d{4})$/);
+  return m ? `${m[3]}-${m[2]}-${m[1]}` : '';
+}
+function to24Hour(v){
+  if(!v) return '';
+  const m=String(v).match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if(!m) return '';
+  let h=parseInt(m[1],10), min=m[2], ap=m[3].toUpperCase();
+  if(ap==='PM' && h<12) h+=12;
+  if(ap==='AM' && h===12) h=0;
+  return String(h).padStart(2,'0')+':'+min;
+}
+function prettyDate(v){
+  if(!v) return '';
+  const p=v.split('-');
+  return p.length===3 ? `${p[2]}-${p[1]}-${p[0]}` : v;
+}
+function prettyTime(v){
+  if(!v) return '';
+  const p=v.split(':');
+  if(p.length<2) return v;
+  let h=parseInt(p[0],10), m=p[1];
+  const ap=h>=12?'PM':'AM';
+  h=h%12||12;
+  return `${String(h).padStart(2,'0')}:${m} ${ap}`;
+}
+function statusLabel(status){
+  return status==='done'?'Completed':status==='active'?'In Progress':'Pending';
+}
+function buildEditor(){
+  const list=document.getElementById('stageEditorList');
+  list.innerHTML='';
+  stages.forEach((s,i)=>{
+    const row=document.createElement('div');
+    row.className='stage-row';
+    row.innerHTML=`
+      <div class="stage-no">${i+1}</div>
+      <div class="field"><label>Stage Name</label><input data-stage="${i}" data-key="name" value="${escapeHtml(s.name)}"></div>
+      <div class="field"><label>Status</label>
+        <select data-stage="${i}" data-key="status">
+          <option value="done" ${s.status==='done'?'selected':''}>Completed</option>
+          <option value="active" ${s.status==='active'?'selected':''}>In Progress</option>
+          <option value="pending" ${s.status==='pending'?'selected':''}>Pending</option>
+        </select>
+      </div>
+      <div class="field"><label>Date</label><input type="date" data-stage="${i}" data-key="date" value="${toIsoDate(s.date)}"></div>
+      <div class="field"><label>Time</label><input type="time" data-stage="${i}" data-key="time" value="${to24Hour(s.time)}"></div>
+    `;
+    list.appendChild(row);
+  });
+}
+function calculateProcessProgress(){
+  if(!stages.length) return 0;
+  const doneCount=stages.filter(s=>s.status==='done').length;
+  const activeCount=stages.filter(s=>s.status==='active').length;
+  return Math.round(((doneCount + activeCount*0.5)/stages.length)*100);
+}
+
+function syncProcessProgress(){
+  processProgress=calculateProcessProgress();
+  return processProgress;
+}
+
+function renderPreview(){
+  const root=document.getElementById('steps');
+  root.innerHTML='';
+  syncProcessProgress();
+  stages.forEach((s,i)=>{
+    const el=document.createElement('div');
+    el.className='step '+s.status;
+    const dt=s.date&&s.time?escapeHtml(s.date)+'<br>'+escapeHtml(s.time):'';
+    el.innerHTML='<div class="circle">'+(s.status==='done'?'✓':i+1)+'</div>'+
+      '<div><div class="step-title">'+escapeHtml(s.name)+'</div>'+
+      '<div class="status">'+statusLabel(s.status)+'</div>'+
+      '<small>'+dt+'</small></div>';
+    root.appendChild(el);
+  });
+  document.getElementById('pct').textContent=processProgress+'%';
+  document.getElementById('bar').style.width=processProgress+'%';
+  const autoValue=document.getElementById('processProgressValue');
+  if(autoValue) autoValue.textContent=processProgress+'%';
+}
+function readEditor(){
+  document.querySelectorAll('#stageEditorList [data-stage]').forEach(el=>{
+    const i=Number(el.dataset.stage),key=el.dataset.key;
+    if(!stages[i]) return;
+    if(key==='name') stages[i].name=el.value.trim()||defaultStages[i].name;
+    else if(key==='status') stages[i].status=el.value;
+    else if(key==='date') stages[i].date=prettyDate(el.value);
+    else if(key==='time') stages[i].time=prettyTime(el.value);
+  });
+  syncProcessProgress();
+}
+function saveProcess(){
+  readEditor();
+  syncProcessProgress();
+  localStorage.setItem('production-process',JSON.stringify({stages,progress:processProgress}));
+  // Keep production-form process data synchronized when it already exists.
+  try{
+    const form=JSON.parse(localStorage.getItem('production-form')||'{}');
+    form.process={stages,progress:processProgress};
+    localStorage.setItem('production-form',JSON.stringify(form));
+  }catch(e){}
+  renderPreview();
+  const msg=document.getElementById('message');
+  msg.classList.add('show');
+  setTimeout(()=>msg.classList.remove('show'),1800);
+}
+function loadProcess(){
+  try{
+    const saved=JSON.parse(localStorage.getItem('production-process')||'{}');
+    if(Array.isArray(saved.stages)) stages=saved.stages;
+    else{
+      const form=JSON.parse(localStorage.getItem('production-form')||'{}');
+      if(form.process && Array.isArray(form.process.stages)) stages=form.process.stages;
+    }
+  }catch(e){}
+  syncProcessProgress();
+}
+
+function resetProcess(){
+  stages=JSON.parse(JSON.stringify(defaultStages));
+  processProgress=0;
+  localStorage.setItem('production-process',JSON.stringify({stages,progress:processProgress}));
+  try{
+    const form=JSON.parse(localStorage.getItem('production-form')||'{}');
+    form.process={stages,progress:processProgress};
+    localStorage.setItem('production-form',JSON.stringify(form));
+  }catch(e){}
+  buildEditor();
+  renderPreview();
+}
+loadProcess();
+buildEditor();
+renderPreview();
+
+document.getElementById('stageEditorList').addEventListener('change',function(){
+  readEditor();
+  renderPreview();
+});
+</script>
+</body>
+</html>
