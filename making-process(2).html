@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Aart Stroke making process editor.">
+<title>Aart Stroke — Making Process</title>
+<style>
+:root{--page:#f5f7fa;--card:#fff;--line:#d7dde4;--text:#1d2835;--muted:#697584;--blue:#2f78e7;--green:#3aa373}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;color:var(--text);background:var(--page)}
+body{padding:24px 18px}.page{max-width:1100px;margin:0 auto}.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.title h1{margin:0;font-size:23px}.title p{margin:5px 0 0;color:var(--muted);font-size:11px}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{height:34px;padding:0 14px;border-radius:6px;border:1px solid #b8c7dc;background:#fff;color:#2c67b8;font-size:11px;cursor:pointer}.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}.btn:focus-visible,.stage-row input:focus,.stage-row select:focus{outline:2px solid #2563eb;outline-offset:2px}.card{background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 2px 8px rgba(18,34,49,.06);overflow:hidden}.card-head{padding:14px 16px;border-bottom:1px solid #e2e6ea;display:flex;justify-content:space-between;gap:10px}.card-head strong{font-size:13px}.card-head span{font-size:10px;color:var(--muted)}
+.editor{padding:14px}.stage-row{display:grid;grid-template-columns:42px 1.7fr 1fr 1fr 1fr;gap:10px;align-items:end;padding:12px 10px;border:1px solid #e0e4e8;border-radius:6px;margin-bottom:9px;background:#fff}.stage-no{width:28px;height:28px;border-radius:50%;background:#eef5ff;color:#2563eb;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-bottom:2px}.field label{display:block;font-size:9px;font-weight:700;color:#56616e;margin-bottom:4px}.field input,.field select{width:100%;height:33px;border:1px solid #cbd1d7;border-radius:4px;padding:4px 8px;font-size:10px;color:#384250;background:#fff}.stage-row input:focus,.stage-row select:focus{border-color:#7ba8e8;box-shadow:0 0 0 2px rgba(47,120,231,.12)}
+.progress-card{display:grid;grid-template-columns:auto 90px 1fr;gap:10px;align-items:center;margin-top:12px;padding:12px 10px;border-top:1px solid #e2e6ea}.progress-card label{font-size:10px;font-weight:700}.auto-progress{width:90px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid #cbd1d7;border-radius:4px;background:#fafbfc;font-size:13px;font-weight:700}.progress-card small{font-size:9px;color:var(--muted)}
+.preview{margin-top:16px}.preview-head{padding:12px 14px;border-bottom:1px solid #e2e6ea;font-size:11px;font-weight:700}.preview-body{padding:16px}.percent-line{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:11px}.percent{font-size:24px;font-weight:800;color:#39414a}.progress{height:9px;border-radius:8px;background:#edf0f3;margin:10px 0 18px;overflow:hidden}.progress span{display:block;height:100%;width:0;background:var(--blue);border-radius:8px}.steps{display:grid;grid-template-columns:repeat(7,1fr)}.step{text-align:center;position:relative;min-width:0}.step:not(:last-child)::after{content:'›';position:absolute;right:-4px;top:7px;color:#778291;font-size:18px}.circle{width:28px;height:28px;border-radius:50%;margin:0 auto 7px;border:1px solid #c3cbd5;background:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;color:#596371}.step.done .circle{background:var(--green);border-color:var(--green);color:#fff}.step.active .circle{background:var(--blue);border-color:var(--blue);color:#fff}.step-title{font-size:9px;font-weight:700;line-height:1.15;min-height:24px}.status{display:inline-block;font-size:9px;padding:4px 8px;border-radius:8px;background:#eef1f4;color:#6a7380;margin-top:4px}.step.active .status{background:#eef5ff;color:#1970e9;border:1px solid #9fc2ff}.step small{display:block;color:#7c8795;font-size:9px;margin-top:5px;line-height:1.2}.message{display:none;margin:10px 14px 0;padding:8px 10px;border-radius:5px;font-size:9px;background:#edf8f1;color:#2f7955;border:1px solid #bfe1cf}.message.show{display:block}
+@media(max-width:760px){body{padding:16px 10px}.topbar{align-items:flex-start;flex-direction:column}.actions{width:100%}.actions .btn{flex:1 1 160px}.stage-row{grid-template-columns:34px 1fr}.stage-row .field:nth-child(3),.stage-row .field:nth-child(4),.stage-row .field:nth-child(5){grid-column:2}.steps{grid-template-columns:1fr}.step{display:grid;grid-template-columns:30px 1fr;text-align:left;column-gap:8px;margin-bottom:8px}.step .circle{grid-row:span 2;margin:0}.step:not(:last-child)::after{display:none}.progress-card{grid-template-columns:1fr 90px}.progress-card small{grid-column:1 / -1}}
+</style>
+</head>
+<body>
+<div class="page">
+<header class="topbar">
+  <div class="title"><h1>Making Process Update</h1><p>Update production stages, status, date, time and overall progress.</p></div>
+  <div class="actions"><button class="btn" id="resetBtn" type="button">Reset</button><button class="btn" id="backBtn" type="button">Back to Production Form</button><button class="btn primary" id="saveBtn" type="button">Save Changes</button></div>
+</header>
+
+<section class="card">
+  <div class="card-head"><strong>Production Stages</strong><span>Changes update the currently selected order.</span></div>
+  <div class="message" id="message">Making process updated successfully.</div>
+  <div class="editor"><div id="stageEditorList"></div><div class="progress-card"><label>Overall Progress</label><div class="auto-progress" id="processProgressValue">36%</div><small>Completed = 100% of a stage. In Progress = 50%. Pending = 0%.</small></div></div>
+</section>
+
+<section class="card preview">
+  <div class="preview-head">Live Preview</div>
+  <div class="preview-body">
+    <div class="percent-line"><span>Production status of this artwork</span><span class="percent" id="pct">36%</span></div>
+    <div class="progress"><span id="bar"></span></div>
+    <div class="steps" id="steps"></div>
+  </div>
+</section>
+</div>
+
+<script>
+const PROCESS_KEY='production-process',FORM_KEY='production-form',ORDERS_KEY='production-orders',CURRENT_KEY='production-current-order';
+const defaultStages=[
+ {name:'Artwork Received',status:'done',date:'14-09-2025',time:'10:15 AM'},
+ {name:'Artwork Checking',status:'done',date:'14-09-2025',time:'11:30 AM'},
+ {name:'Printing',status:'active',date:'14-09-2025',time:'02:10 PM'},
+ {name:'Finishing',status:'pending',date:'',time:''},
+ {name:'Quality Checking',status:'pending',date:'',time:''},
+ {name:'Customer Approval',status:'pending',date:'',time:''},
+ {name:'Completed',status:'pending',date:'',time:''}
+];
+let stages=structuredClone(defaultStages),progress=36;
+const $=id=>document.getElementById(id);
+function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]))}
+function safeProgress(v){return Math.max(0,Math.min(100,Number(v)||0))}
+function prettyDate(v){if(!v)return '';const p=String(v).split('-');return p.length===3&&p[0].length===4?`${p[2]}-${p[1]}-${p[0]}`:String(v)}
+function prettyTime(v){if(!v)return '';const p=String(v).split(':');if(p.length<2)return String(v);let h=Number(p[0]);const ap=h>=12?'PM':'AM';h=h%12||12;return `${String(h).padStart(2,'0')}:${p[1]} ${ap}`}
+function toIsoDate(v){if(!v)return '';const s=String(v);if(/^\\d{4}-\\d{2}-\\d{2}$/.test(s))return s;const p=s.split('-');return p.length===3?`${p[2]}-${p[1]}-${p[0]}`:''}
+function to24Hour(v){if(!v)return '';const s=String(v);if(/^\\d{2}:\\d{2}$/.test(s))return s;const m=s.match(/^(\\d{1,2}):(\\d{2})\\s*(AM|PM)$/i);if(!m)return '';let h=Number(m[1]);if(m[3].toUpperCase()==='PM'&&h<12)h+=12;if(m[3].toUpperCase()==='AM'&&h===12)h=0;return String(h).padStart(2,'0')+':'+m[2]}
+function statusLabel(s){return s==='done'?'Completed':s==='active'?'In Progress':'Pending'}
+function calculateProgress(){const done=stages.filter(s=>s.status==='done').length,active=stages.filter(s=>s.status==='active').length;return stages.length?safeProgress(Math.round(((done+active*.5)/stages.length)*100)):0}
+function renderPreview(){const root=$('steps');root.innerHTML='';progress=calculateProgress();stages.forEach((s,i)=>{const el=document.createElement('div');const status=['done','active','pending'].includes(s.status)?s.status:'pending';el.className='step '+status;const dt=s.date||s.time?escapeHtml(s.date||'')+(s.date&&s.time?'<br>':'')+escapeHtml(s.time||''):'';el.innerHTML=`<div class="circle">${status==='done'?'✓':i+1}</div><div><div class="step-title">${escapeHtml(s.name||('Stage '+(i+1)))}</div><div class="status">${statusLabel(status)}</div><small>${dt}</small></div>`;root.appendChild(el)});$('pct').textContent=progress+'%';$('bar').style.width=progress+'%';$('processProgressValue').textContent=progress+'%'}
+function readEditor(){document.querySelectorAll('#stageEditorList [data-stage]').forEach(el=>{const i=Number(el.dataset.stage),key=el.dataset.key;if(!stages[i])return;if(key==='name')stages[i].name=el.value.trim()||defaultStages[i].name;if(key==='status')stages[i].status=el.value;if(key==='date')stages[i].date=prettyDate(el.value);if(key==='time')stages[i].time=prettyTime(el.value)});progress=calculateProgress()}
+function buildEditor(){const root=$('stageEditorList');root.innerHTML='';stages.forEach((s,i)=>{const row=document.createElement('div');row.className='stage-row';row.innerHTML=`<div class="stage-no">${i+1}</div><div class="field"><label>Stage Name</label><input data-stage="${i}" data-key="name" value="${escapeHtml(s.name)}"></div><div class="field"><label>Status</label><select data-stage="${i}" data-key="status"><option value="done" ${s.status==='done'?'selected':''}>Completed</option><option value="active" ${s.status==='active'?'selected':''}>In Progress</option><option value="pending" ${s.status==='pending'?'selected':''}>Pending</option></select></div><div class="field"><label>Date</label><input type="date" data-stage="${i}" data-key="date" value="${toIsoDate(s.date)}"></div><div class="field"><label>Time</label><input type="time" data-stage="${i}" data-key="time" value="${to24Hour(s.time)}"></div>`;root.appendChild(row)})}
+function load(){try{const currentId=localStorage.getItem(CURRENT_KEY)||'',orders=JSON.parse(localStorage.getItem(ORDERS_KEY)||'[]'),current=Array.isArray(orders)?orders.find(o=>o.id===currentId):null;const p=current?.data?.process||JSON.parse(localStorage.getItem(PROCESS_KEY)||'{}');if(Array.isArray(p?.stages))stages=structuredClone(p.stages);if(Number.isFinite(Number(p?.progress)))progress=safeProgress(p.progress);else progress=calculateProgress()}catch(e){progress=calculateProgress()}}
+function showMessage(t){const el=$('message');el.textContent=t;el.classList.add('show');clearTimeout(showMessage.t);showMessage.t=setTimeout(()=>el.classList.remove('show'),1900)}
+function save(){readEditor();progress=calculateProgress();const data={stages:structuredClone(stages),progress};localStorage.setItem(PROCESS_KEY,JSON.stringify(data));try{const form=JSON.parse(localStorage.getItem(FORM_KEY)||'{}');form.process=data;localStorage.setItem(FORM_KEY,JSON.stringify(form));const currentId=localStorage.getItem(CURRENT_KEY)||'',orders=JSON.parse(localStorage.getItem(ORDERS_KEY)||'[]');if(currentId&&Array.isArray(orders)){const current=orders.find(o=>o.id===currentId);if(current){current.data=current.data||{};current.data.process=data;current.savedAt=new Date().toISOString();localStorage.setItem(ORDERS_KEY,JSON.stringify(orders))}}}catch(e){}renderPreview();showMessage('Making process saved successfully.')}
+function reset(){stages=structuredClone(defaultStages);progress=calculateProgress();const data={stages:structuredClone(stages),progress};localStorage.setItem(PROCESS_KEY,JSON.stringify(data));try{const form=JSON.parse(localStorage.getItem(FORM_KEY)||'{}');form.process=data;localStorage.setItem(FORM_KEY,JSON.stringify(form));const currentId=localStorage.getItem(CURRENT_KEY)||'',orders=JSON.parse(localStorage.getItem(ORDERS_KEY)||'[]');if(currentId&&Array.isArray(orders)){const current=orders.find(o=>o.id===currentId);if(current){current.data=current.data||{};current.data.process=data;current.savedAt=new Date().toISOString();localStorage.setItem(ORDERS_KEY,JSON.stringify(orders))}}}catch(e){}buildEditor();renderPreview();showMessage('Process reset to defaults.')}
+function init(){load();buildEditor();renderPreview();$('stageEditorList').addEventListener('input',()=>{readEditor();renderPreview()});$('stageEditorList').addEventListener('change',()=>{readEditor();renderPreview()});$('saveBtn').addEventListener('click',save);$('resetBtn').addEventListener('click',reset);$('backBtn').addEventListener('click',()=>location.href='production-form.html')}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+</script>
+</body>
+</html>
