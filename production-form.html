@@ -38,51 +38,390 @@ body{min-height:100vh}button,input,select{font:inherit}
 @media screen and (max-width:760px){
  .wrap{padding:10px 8px 24px}.sheet{padding:8px}.topbar .btn{flex:1 1 150px}.heading h1{font-size:20px}.heading li{font-size:12px}.data{grid-template-columns:1fr}.approval-row{grid-template-columns:120px 12px 1fr}.approval-size{grid-template-columns:120px 10px 10px 58px 18px 40px 10px 58px 18px 40px}.approval-colours{grid-template-columns:120px 12px 1fr}.colour-items{grid-template-columns:repeat(4,1fr);row-gap:8px}.finishing-options{grid-template-columns:1fr}.finishing-options label:nth-child(odd){border-right:0}.approval-direction{grid-template-columns:1fr}.approval-direction label{border-right:0;border-bottom:1px solid #cdd2d7}.approval-direction label:last-child{border-bottom:0}.order-ledger{margin-left:8px;margin-right:8px}.order-ledger-head{align-items:flex-start;flex-direction:column}
 }
-@media print{
- @page{size:A4 portrait;margin:0}
- *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
- html,body{width:210mm;min-height:297mm;background:#fff!important;margin:0!important;padding:0!important;overflow:visible!important}
- .topbar,.actions,.order-ledger,.art-upload-zone,.art-change-btn,.process-edit-btn{display:none!important}
- .wrap{width:210mm!important;max-width:none!important;margin:0!important;padding:0!important}
- .sheet{width:210mm!important;min-height:297mm;margin:0!important;padding:4mm!important;border:0!important;box-shadow:none!important;border-radius:0!important}
- .header,.data,.artwork,.process,.approval{break-inside:avoid!important;page-break-inside:avoid!important}
- .header{grid-template-columns:42mm 1fr 47mm!important;min-height:30mm!important}
- .logo-panel{padding:3mm!important}
- .logo-name{font-size:16px!important}.logo-sub,.logo-foot{font-size:7px!important}
- .heading{padding:3mm 4mm!important}.heading h1{font-size:24px!important;margin-bottom:5px!important}.heading li{font-size:16px!important;line-height:1.15!important;margin:1px 0!important}.inline-date{font-size:16px!important;width:38mm!important;height:7mm!important}
- .meta .cell{padding:2.5mm!important;font-size:16px!important}.meta .big{padding:3mm!important}.meta label,.field label{font-size:16px!important}
- .field input,.field select,.meta input{height:7mm!important;font-size:16px!important}
- .data .field{padding:2.5mm!important;min-height:17mm!important}
- .artwork{margin-top:3mm!important;padding:2.5mm!important}.art-title{font-size:16px!important;margin-bottom:2mm!important}.art-box{height:68mm!important}.art-img{max-height:59mm!important;max-width:90%!important}.metal{font-size:16px!important;top:-7mm!important}
- .process{margin-top:3mm!important;padding:2.5mm!important}.process-head h2{font-size:16px!important}.process-head p{font-size:12px!important}.percent{font-size:20px!important}.progress{height:2.2mm!important;margin:2mm 0 3mm!important}.circle{width:6mm!important;height:6mm!important;font-size:11px!important;margin-bottom:1.5mm!important}.step:not(:last-child)::after{font-size:18px!important;top:1mm!important}.step-title{font-size:13px!important;min-height:9mm!important}.status{font-size:10px!important;padding:1mm 1.5mm!important;margin-top:1mm!important}.step small{font-size:9px!important;margin-top:1mm!important}
- .approval{margin-top:3mm!important}.approval-title{height:9mm!important;font-size:20px!important}.approval-row{min-height:8mm!important;padding:1mm 2mm!important;font-size:16px!important}.approval-row input,.approval-row select,.approval-signature input,.approval-footer input{height:6.5mm!important;font-size:16px!important}.approval-row #name{font-weight:700!important}.approval-size{grid-template-columns:37mm 4mm 4mm 16mm 6mm 12mm 4mm 16mm 6mm 12mm!important}.approval-colours{padding:1.5mm 2mm!important;min-height:21mm!important;font-size:16px!important}.colour-items{gap:1.2mm!important}.colour-item-top{gap:1mm!important}.colour-check{width:4mm!important;height:4mm!important}.colour-swatch{width:8mm!important;height:5.5mm!important}.colour-name{height:5mm!important;font-size:10px!important}.colour-ink{gap:1mm!important;font-size:10px!important}.colour-ink-input{width:9mm!important;height:5mm!important;font-size:10px!important}.colour-ink span{font-size:10px!important}
- .approval-finishing{grid-template-columns:22mm 1fr!important}.finishing-label{font-size:16px!important}.finishing-options label{padding:1.3mm 2mm!important;font-size:14px!important;min-height:7mm!important}.finishing-options input,.approval-direction input{width:4mm!important;height:4mm!important}.approval-direction{min-height:8mm!important;font-size:14px!important}.approval-direction label{padding:1.2mm 2mm!important}.approval-signature{min-height:18mm!important}.signature-area,.date-area{padding:2mm!important}.signature-area strong,.date-area strong{font-size:14px!important}.approval-footer{min-height:9mm!important}.approval-footer>div{padding:1.5mm 2mm!important;font-size:13px!important}
+@page {
+  size: A4 portrait;
+  margin: 5mm;
 }
 
-@media print{
-  /* Requested print typography:
-     - everything in the form = 16px
-     - AFFIRMATION OF DIGITAL DATA = 24px
-  */
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  html,
+  body {
+    width: 200mm !important;
+    min-height: 287mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    overflow: visible !important;
+  }
+
+  .topbar,
+  .actions,
+  .order-ledger,
+  .art-upload-zone,
+  .art-change-btn,
+  .process-edit-btn {
+    display: none !important;
+  }
+
+  /* The 0.76 print zoom scales the full form evenly to the A4 printable area.
+     The wider layout preserves the original grid proportions before scaling. */
+  .wrap {
+    width: 200mm !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .sheet {
+    width: 263.158mm !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 4mm !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    zoom: 0.76;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
   .sheet,
-  .sheet *{
-    font-size:16px !important;
+  .sheet * {
+    font-size: 16px !important;
   }
 
-  .sheet .heading h1{
-    font-size:24px !important;
+  .sheet .heading h1 {
+    font-size: 24px !important;
+    line-height: 1.05 !important;
   }
 
-  /* Keep unit / dimension helper text aligned with the 16px rule too. */
-  .sheet .unit,
-  .sheet .inch-value,
-  .sheet .step small,
-  .sheet .status,
-  .sheet .step-title,
-  .sheet .art-upload-sub,
-  .sheet .art-upload-title,
-  .sheet .metal{
-    font-size:16px !important;
+  .header,
+  .data,
+  .artwork,
+  .process,
+  .approval {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .header {
+    grid-template-columns: 42mm minmax(0, 1fr) 47mm !important;
+    min-height: 30mm !important;
+  }
+
+  .logo-panel {
+    min-width: 0 !important;
+    padding: 3mm !important;
+  }
+
+  .heading {
+    min-width: 0 !important;
+    padding: 3mm 4mm !important;
+  }
+
+  .heading h1 {
+    overflow-wrap: anywhere !important;
+    margin-bottom: 5px !important;
+  }
+
+  .heading ul {
+    padding-left: 18px !important;
+  }
+
+  .heading li {
+    font-size: 16px !important;
+    line-height: 1.15 !important;
+    margin: 1px 0 !important;
+  }
+
+  .inline-date {
+    width: 38mm !important;
+    height: 7mm !important;
+    margin-left: 2mm !important;
+  }
+
+  .meta .cell {
+    min-width: 0 !important;
+    padding: 2.5mm !important;
+  }
+
+  .meta .big {
+    padding: 3mm !important;
+  }
+
+  .field input,
+  .field select,
+  .meta input,
+  .approval-row input,
+  .approval-row select,
+  .approval-signature input,
+  .approval-footer input {
+    min-width: 0 !important;
+    height: 7mm !important;
+    font-size: 16px !important;
+    padding: 1mm 1.5mm !important;
+  }
+
+  .data {
+    grid-template-columns: 1.08fr 1fr 1.1fr .9fr .86fr !important;
+  }
+
+  .data .field {
+    min-width: 0 !important;
+    padding: 2.5mm !important;
+  }
+
+  .unit-input {
+    min-width: 0 !important;
+    gap: 2mm !important;
+  }
+
+  .unit-input input {
+    min-width: 0 !important;
+  }
+
+  .artwork {
+    margin-top: 3mm !important;
+    padding: 2.5mm !important;
+  }
+
+  .art-title {
+    margin-bottom: 2mm !important;
+  }
+
+  .art-box {
+    height: 68mm !important;
+  }
+
+  .art-img {
+    max-height: 59mm !important;
+    max-width: 90% !important;
+  }
+
+  .metal {
+    top: -7mm !important;
+  }
+
+  .process {
+    margin-top: 3mm !important;
+    padding: 2.5mm !important;
+  }
+
+  .process-head p {
+    font-size: 12px !important;
+  }
+
+  .percent {
+    font-size: 20px !important;
+  }
+
+  .progress {
+    height: 2.2mm !important;
+    margin: 2mm 0 3mm !important;
+  }
+
+  .circle {
+    width: 6mm !important;
+    height: 6mm !important;
+    margin-bottom: 1.5mm !important;
+  }
+
+  .step:not(:last-child)::after {
+    top: 1mm !important;
+  }
+
+  .step-title {
+    min-height: 9mm !important;
+    line-height: 1.1 !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .status {
+    padding: 1mm 1.5mm !important;
+    margin-top: 1mm !important;
+  }
+
+  .step small {
+    margin-top: 1mm !important;
+    line-height: 1.15 !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .approval {
+    margin-top: 3mm !important;
+  }
+
+  .approval-title {
+    height: 9mm !important;
+  }
+
+  .approval-body {
+    grid-template-columns: 52% 48% !important;
+    min-width: 0 !important;
+  }
+
+  .approval-left,
+  .approval-finishing,
+  .approval-row,
+  .approval-colours,
+  .approval-footer > div {
+    min-width: 0 !important;
+  }
+
+  .approval-row {
+    grid-template-columns: 37mm 4mm minmax(0, 1fr) !important;
+    min-height: 8mm !important;
+    padding: 1mm 2mm !important;
+  }
+
+  .approval-row input,
+  .approval-row select,
+  .approval-signature input,
+  .approval-footer input {
+    height: 6.5mm !important;
+  }
+
+  .approval-row #name {
+    font-weight: 700 !important;
+  }
+
+  .approval-row.approval-size {
+    grid-template-columns: 29mm 3mm 3mm minmax(8mm, 1fr) 4mm 9mm 3mm minmax(8mm, 1fr) 4mm 9mm !important;
+    column-gap: 0 !important;
+  }
+
+  .approval-colours {
+    grid-template-columns: 29mm 3mm minmax(0, 1fr) !important;
+    padding: 1.5mm 2mm !important;
+    min-height: 21mm !important;
+  }
+
+  .colour-items {
+    grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+    gap: 1mm !important;
+  }
+
+  .colour-item,
+  .colour-item-top,
+  .colour-ink {
+    min-width: 0 !important;
+  }
+
+  .colour-item-top {
+    gap: 1mm !important;
+  }
+
+  .colour-check {
+    flex: 0 0 auto !important;
+    width: 4mm !important;
+    height: 4mm !important;
+  }
+
+  .colour-swatch {
+    flex: 0 0 auto !important;
+    width: 7mm !important;
+    height: 5.5mm !important;
+  }
+
+  .colour-name {
+    width: 100% !important;
+    height: 5mm !important;
+    min-width: 0 !important;
+    padding: .5mm !important;
+    font-size: 10px !important;
+  }
+
+  .colour-ink {
+    gap: .5mm !important;
+    font-size: 10px !important;
+  }
+
+  .colour-ink-input {
+    width: 8mm !important;
+    min-width: 0 !important;
+    height: 5mm !important;
+    padding: .5mm !important;
+    font-size: 10px !important;
+  }
+
+  .approval-finishing {
+    grid-template-columns: 22mm minmax(0, 1fr) !important;
+  }
+
+  .finishing-label {
+    text-align: center !important;
+  }
+
+  .finishing-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .finishing-options label {
+    min-width: 0 !important;
+    min-height: 7mm !important;
+    padding: 1mm 1.5mm !important;
+    gap: 1mm !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .finishing-options input,
+  .approval-direction input {
+    flex: 0 0 auto !important;
+    width: 4mm !important;
+    height: 4mm !important;
+  }
+
+  .approval-direction {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    min-height: 8mm !important;
+  }
+
+  .approval-direction label {
+    min-width: 0 !important;
+    padding: 1mm 1.5mm !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .approval-signature {
+    grid-template-columns: 1fr 1fr !important;
+    min-height: 18mm !important;
+  }
+
+  .signature-area,
+  .date-area {
+    min-width: 0 !important;
+    padding: 2mm !important;
+  }
+
+  .signature-area {
+    gap: 1mm !important;
+  }
+
+  .date-area {
+    gap: 2mm !important;
+  }
+
+  .approval-footer {
+    grid-template-columns: 1.2fr 1.2fr 1fr !important;
+    min-height: 9mm !important;
+  }
+
+  .approval-footer > div {
+    grid-template-columns: auto 3mm minmax(0, 1fr) !important;
+    gap: 1mm !important;
+    padding: 1mm 1.5mm !important;
+  }
+
+  .approval-footer strong {
+    white-space: normal !important;
   }
 }
 
